@@ -10,11 +10,14 @@ import (
 	"chekisvc/pkg/logger"
 
 	"github.com/gin-gonic/gin"
+	"github.com/joho/godotenv"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
 func main() {
+	// Load environment variables
+	_ = godotenv.Load()
 	// Load configuration
 	cfg := config.Load()
 

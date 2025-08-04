@@ -2,6 +2,7 @@ package config
 
 import (
 	"chekisvc/internal/infrastructure/database"
+	"log"
 	"os"
 )
 
@@ -36,7 +37,9 @@ func Load() *Config {
 // getEnv gets environment variable with default value
 func getEnv(key, defaultValue string) string {
 	if value := os.Getenv(key); value != "" {
+		log.Printf("[CONFIG] %s loaded from ENV: %s", key, value)
 		return value
 	}
+	log.Printf("[CONFIG] %s using default: %s", key, defaultValue)
 	return defaultValue
 }

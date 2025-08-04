@@ -6,6 +6,7 @@
 # Go builds
 bin/
 dist/
+cheki-service
 
 # IDE files
 .vscode/
