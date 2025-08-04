@@ -1,3 +1,4 @@
+basePath: /api/v1
 definitions:
   entity.UpdateUserRequest:
     properties:
@@ -17,6 +18,13 @@ definitions:
       name:
         type: string
       updated_at:
+        type: string
+    type: object
+  entity.UserLoginRequest:
+    properties:
+      email:
+        type: string
+      password:
         type: string
     type: object
   entity.UserRegisterRequest:
@@ -45,10 +53,87 @@ definitions:
       success:
         type: boolean
     type: object
+host: localhost:8080
 info:
-  contact: {}
+  contact:
+    email: support@swagger.io
+    name: API Support
+    url: http://www.swagger.io/support
+  description: A Clean Architecture Go API with JWT Authentication
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: http://swagger.io/terms/
+  title: Cheki Service API
+  version: "1.0"
 paths:
-  /api/v1/users:
+  /login:
+    post:
+      consumes:
+      - application/json
+      description: Authenticate user and return JWT tokens
+      parameters:
+      - description: Login credentials
+        in: body
+        name: login
+        required: true
+        schema:
+          $ref: '#/definitions/entity.UserLoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/utils.Response'
+      summary: Login user
+      tags:
+      - Auth
+  /refresh-token:
+    post:
+      consumes:
+      - application/json
+      description: Get new access token using refresh token
+      parameters:
+      - description: Refresh token
+        in: body
+        name: refresh_token
+        required: true
+        schema:
+          additionalProperties:
+            type: string
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/utils.Response'
+      summary: Refresh JWT token
+      tags:
+      - Auth
+  /users:
     get:
       description: Retrieve a list of users with pagination
       parameters:
@@ -75,6 +160,8 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/utils.Response'
+      security:
+      - BearerAuth: []
       summary: List users with pagination
       tags:
       - Users
@@ -107,7 +194,7 @@ paths:
       summary: Create a new user
       tags:
       - Users
-  /api/v1/users/{id}:
+  /users/{id}:
     delete:
       description: Delete a user by their ID
       parameters:
@@ -131,6 +218,8 @@ paths:
           description: Not Found
           schema:
             $ref: '#/definitions/utils.Response'
+      security:
+      - BearerAuth: []
       summary: Delete user by ID
       tags:
       - Users
@@ -157,6 +246,8 @@ paths:
           description: Not Found
           schema:
             $ref: '#/definitions/utils.Response'
+      security:
+      - BearerAuth: []
       summary: Get user by ID
       tags:
       - Users
@@ -191,7 +282,15 @@ paths:
           description: Not Found
           schema:
             $ref: '#/definitions/utils.Response'
+      security:
+      - BearerAuth: []
       summary: Update user by ID
       tags:
       - Users
+securityDefinitions:
+  BearerAuth:
+    description: Type "Bearer" followed by a space and JWT token.
+    in: header
+    name: Authorization
+    type: apiKey
 swagger: "2.0"

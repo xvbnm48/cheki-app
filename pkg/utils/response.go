@@ -15,6 +15,13 @@ type Response struct {
 	Error   string      `json:"error,omitempty"`
 }
 
+type ResponseLogin struct {
+	Success      bool   `json:"success"`
+	Message      string `json:"message"`
+	AccessToken  string `json:"access_token"`
+	RefreshToken string `json:"refresh_token"`
+}
+
 // SuccessResponse sends a success response
 func SuccessResponse(c *gin.Context, message string, data interface{}) {
 	c.JSON(http.StatusOK, Response{
@@ -30,6 +37,15 @@ func ErrorResponse(c *gin.Context, statusCode int, message string, errDetail str
 		Success: false,
 		Message: message,
 		Error:   errDetail,
+	})
+}
+
+func LoginResponse(c *gin.Context, accessToken, refreshToken string) {
+	c.JSON(http.StatusOK, ResponseLogin{
+		Success:      true,
+		Message:      "Login successful",
+		AccessToken:  accessToken,
+		RefreshToken: refreshToken,
 	})
 }
 

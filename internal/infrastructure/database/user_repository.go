@@ -44,7 +44,7 @@ func (r *userRepository) GetByID(ctx context.Context, id uint) (*entity.User, er
 // GetByEmail retrieves a user by email from the database
 func (r *userRepository) GetByEmail(ctx context.Context, email string) (*entity.User, error) {
 	var user entity.User
-	err := r.db.QueryRowContext(ctx, "SELECT id, name, email, created_at, updated_at FROM users WHERE email = $1", email).Scan(&user.ID, &user.Name, &user.Email, &user.CreatedAt, &user.UpdatedAt)
+	err := r.db.QueryRowContext(ctx, "SELECT id, name, email, password, created_at, updated_at FROM users WHERE email = $1", email).Scan(&user.ID, &user.Name, &user.Email, &user.Password, &user.CreatedAt, &user.UpdatedAt)
 	if err != nil {
 		return nil, err
 	}

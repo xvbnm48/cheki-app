@@ -3,11 +3,13 @@ package usecase
 import (
 	"context"
 	"errors"
+	"log"
 	"time"
 
 	"chekisvc/internal/domain/entity"
 	repository "chekisvc/internal/domain/interface"
 	"chekisvc/pkg/logger"
+	"chekisvc/pkg/utils"
 )
 
 // UserUsecase represents the user's use cases
@@ -26,6 +28,23 @@ func NewUserUsecase(userRepo repository.UserRepository, logger logger.Logger) *U
 	}
 }
 
+// AuthenticateUser authenticates a user by email and password
+func (u *UserUsecase) AuthenticateUser(ctx context.Context, email, password string) (*entity.User, error) {
+	ctx, cancel := context.WithTimeout(ctx, u.timeout)
+	defer cancel()
+
+	user, err := u.userRepo.GetByEmail(ctx, email)
+	if err != nil || user == nil {
+		return nil, errors.New("invalid email or password")
+	}
+
+	if err := utils.CheckPassword(password, user.Password); err != nil {
+		return nil, errors.New("invalid email or password")
+	}
+
+	return user, nil
+}
+
 // CreateUser creates a new user
 func (u *UserUsecase) CreateUser(ctx context.Context, user *entity.UserRegisterRequest) error {
 	ctx, cancel := context.WithTimeout(ctx, u.timeout)
@@ -36,6 +55,12 @@ func (u *UserUsecase) CreateUser(ctx context.Context, user *entity.UserRegisterR
 	if err == nil && existingUser != nil {
 		return errors.New("user with this email already exists")
 	}
+	hashPassword, err := utils.HashPassword(user.Password)
+	if err != nil {
+		return err
+	}
+	log.Println("Hashed Password:", hashPassword)
+	user.Password = hashPassword
 
 	// Create user
 	return u.userRepo.Create(ctx, user)

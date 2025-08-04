@@ -33,13 +33,18 @@ func NewUserHandler(userUsecase *usecase.UserUsecase) *UserHandler {
 // @Success 201 {object} entity.UserRegisterRequest
 // @Failure 400 {object} utils.Response
 // @Failure 500 {object} utils.Response
-// @Router /api/v1/users [post]
+// @Router /users [post]
 // CreateUser handles POST /users
 func (h *UserHandler) CreateUser(c *gin.Context) {
 	var user entity.UserRegisterRequest
 	if err := c.ShouldBindJSON(&user); err != nil {
 		// c.JSON(http.StatusBadRequest, utils.ErrorResponse())
 		utils.ErrorResponse(c, http.StatusBadRequest, "invalid request body", err.Error())
+		return
+	}
+	checkEmail := utils.ValidateEmail(user.Email)
+	if !checkEmail {
+		utils.ErrorResponse(c, http.StatusBadRequest, "invalid email format", "email tidak valid")
 		return
 	}
 
@@ -64,7 +69,8 @@ func (h *UserHandler) CreateUser(c *gin.Context) {
 // @Success 200 {object} entity.UserResponse
 // @Failure 400 {object} utils.Response
 // @Failure 404 {object} utils.Response
-// @Router /api/v1/users/{id} [get]
+// @Security BearerAuth
+// @Router /users/{id} [get]
 // GetUser handles GET /users/:id
 func (h *UserHandler) GetUser(c *gin.Context) {
 	idParam := c.Param("id")
@@ -97,7 +103,8 @@ func (h *UserHandler) GetUser(c *gin.Context) {
 // @Success 200 {object} entity.User
 // @Failure 400 {object} utils.Response
 // @Failure 404 {object} utils.Response
-// @Router /api/v1/users/{id} [put]
+// @Security BearerAuth
+// @Router /users/{id} [put]
 // UpdateUser handles PUT /users/:id
 func (h *UserHandler) UpdateUser(c *gin.Context) {
 	idParam := c.Param("id")
@@ -142,7 +149,8 @@ func (h *UserHandler) UpdateUser(c *gin.Context) {
 // @Success 200 {object} entity.UserResponse
 // @Failure 400 {object} utils.Response
 // @Failure 404 {object} utils.Response
-// @Router /api/v1/users/{id} [delete]
+// @Security BearerAuth
+// @Router /users/{id} [delete]
 // DeleteUser handles DELETE /users/:id
 func (h *UserHandler) DeleteUser(c *gin.Context) {
 	idParam := c.Param("id")
@@ -171,7 +179,8 @@ func (h *UserHandler) DeleteUser(c *gin.Context) {
 // @Param offset query int false "Offset" default(0)
 // @Success 200 {object} []entity.UserResponse
 // @Failure 400 {object} utils.Response
-// @Router /api/v1/users [get]
+// @Security BearerAuth
+// @Router /users [get]
 // ListUsers handles GET /users
 func (h *UserHandler) ListUsers(c *gin.Context) {
 	limitStr := c.DefaultQuery("limit", "10")
