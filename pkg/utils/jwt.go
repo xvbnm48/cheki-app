@@ -1,13 +1,14 @@
 package utils
 
 import (
+	"os"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
 )
 
-var jwtKey = []byte("your_secret_key")
-var jwtRefreshKey = []byte("your_refresh_secret_key")
+var jwtKey = []byte(os.Getenv("JWT_SECRET"))
+var jwtRefreshKey = []byte(os.Getenv("JWT_REFRESH_SECRET"))
 
 // GenerateJWT generates access and refresh tokens
 func GenerateJWT(userID uint, email string) (string, string, error) {

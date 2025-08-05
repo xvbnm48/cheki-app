@@ -57,6 +57,7 @@ func (h *UserHandler) CreateUser(c *gin.Context) {
 		Email: user.Email,
 	}
 	// c.JSON(http.StatusCreated, user)
+	// disini kita bisa mengembalikan response yang lebih lengkap
 	utils.SuccessResponse(c, "User created successfully", userRes)
 }
 

@@ -1,4 +1,7 @@
-.PHONY: build run test clean deps docker-build docker-run
+include .env
+export
+
+.PHONY: build run test clean deps docker-build docker-run migrate-up migrate-down migrate-rollback migrate-reset migrate-status swagger
 
 # Go parameters
 GOCMD=go
@@ -26,6 +29,10 @@ test:
 test-coverage:
 	$(GOTEST) -v -coverprofile=coverage.out ./...
 	$(GOCMD) tool cover -html=coverage.out -o coverage.html
+
+# Test repository
+test-repository:
+	$(GOTEST) -v ./test/...
 
 # Clean build files
 clean:
@@ -56,11 +63,22 @@ docker-stop:
 
 # Database migration up
 migrate-up:
-	migrate -path migrations -database "postgres://postgres:password@localhost:5432/chekisvc?sslmode=disable" up
+	goose -dir migrations postgres "postgres://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_NAME}?sslmode=${DB_SSL_MODE}" up
 
-# Database migration down
+# Database migration down (rolls back all migrations)
 migrate-down:
-	migrate -path migrations -database "postgres://postgres:password@localhost:5432/chekisvc?sslmode=disable" down
+	goose -dir migrations postgres "postgres://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_NAME}?sslmode=${DB_SSL_MODE}" down-to 0
+
+# Database migration rollback (rolls back the last migration)
+migrate-rollback:
+	goose -dir migrations postgres "postgres://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_NAME}?sslmode=${DB_SSL_MODE}" down
+
+# Database migration reset (rolls back all and applies all)
+migrate-reset: migrate-down migrate-up
+
+# Database migration status
+migrate-status:
+	goose -dir migrations postgres "postgres://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_NAME}?sslmode=${DB_SSL_MODE}" status
 
 swagger:
 	@echo "Generating Swagger documentation..."
