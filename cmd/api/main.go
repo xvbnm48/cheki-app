@@ -26,8 +26,9 @@ import (
 	"chekisvc/internal/delivery/http/middleware"
 	"chekisvc/internal/infrastructure/config"
 	"chekisvc/internal/infrastructure/database"
-	user_repository "chekisvc/internal/infrastructure/database"
-	"chekisvc/internal/usecase"
+
+	"chekisvc/internal/usecase/product"
+	usecase "chekisvc/internal/usecase/user"
 	"chekisvc/pkg/logger"
 
 	"github.com/gin-gonic/gin"
@@ -53,14 +54,17 @@ func main() {
 	defer db.Close()
 
 	// Initialize repositories
-	userRepo := user_repository.NewUserRepository(db.DB)
+	userRepo := database.NewUserRepository(db.DB)
+	productRepo := database.NewProductRepository(db.DB)
 
 	// Initialize use cases
 	userUsecase := usecase.NewUserUsecase(userRepo, log)
+	productUsecase := product.NewProductUsecase(productRepo, log)
 
 	// Initialize handlers
 	userHandler := handler.NewUserHandler(userUsecase)
 	authHandler := handler.NewAuthHandler(userUsecase)
+	productHandler := handler.NewProductHandler(productUsecase)
 
 	// Setup router
 	router := gin.Default()
@@ -90,6 +94,11 @@ func main() {
 		protected.PUT("/users/:id", userHandler.UpdateUser)
 		protected.DELETE("/users/:id", userHandler.DeleteUser)
 		protected.GET("/users", userHandler.ListUsers)
+		protected.POST("/products", productHandler.CreateProduct)
+		protected.GET("/products", productHandler.GetAllProducts)
+		// protected.PUT("/products/:id", productHandler.UpdateProduct)
+		// protected.DELETE("/products/:id", productHandler.DeleteProduct)
+		// TODO: Implement ListProducts endpoint in the future
 	}
 
 	// Start server

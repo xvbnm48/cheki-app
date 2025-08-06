@@ -1,5 +1,16 @@
 basePath: /api/v1
 definitions:
+  entity.CreateProductRequest:
+    properties:
+      category_id:
+        type: integer
+      description:
+        type: string
+      name:
+        type: string
+      price:
+        type: number
+    type: object
   entity.UpdateUserRequest:
     properties:
       email:
@@ -99,6 +110,71 @@ paths:
       summary: Login user
       tags:
       - Auth
+  /products:
+    get:
+      consumes:
+      - application/json
+      description: Get all products with pagination
+      parameters:
+      - description: Limit
+        in: query
+        name: limit
+        type: integer
+      - description: Offset
+        in: query
+        name: offset
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/utils.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.Response'
+      security:
+      - BearerAuth: []
+      summary: Get all products
+      tags:
+      - Products
+    post:
+      consumes:
+      - application/json
+      description: Create a new product with the input payload
+      parameters:
+      - description: Create Product
+        in: body
+        name: product
+        required: true
+        schema:
+          $ref: '#/definitions/entity.CreateProductRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/utils.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.Response'
+      security:
+      - BearerAuth: []
+      summary: Create a new product
+      tags:
+      - Products
   /refresh-token:
     post:
       consumes:

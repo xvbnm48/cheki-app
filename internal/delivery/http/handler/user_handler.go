@@ -5,7 +5,7 @@ import (
 	"strconv"
 
 	"chekisvc/internal/domain/entity"
-	"chekisvc/internal/usecase"
+	usecase "chekisvc/internal/usecase/user"
 	"chekisvc/pkg/utils"
 
 	"github.com/gin-gonic/gin"
